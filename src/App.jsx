@@ -1,35 +1,143 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import Card from './components/Card/Card';
+import Product from './components/Product/Product';
+import Cart from './components/Cart/Cart';
+import { getFromLocalStorage, setToLocalStorage } from './utils/localStorage';
 
-function App() {
-  const [count, setCount] = useState(0)
+import './App.css';
+
+const App = () => {
+  const [shoes, setShoes] = useState([]);
+  const [cartList, setCartList] = useState([]);
+
+  useEffect(() => {
+    const localCart = getFromLocalStorage('cart');
+    if (localCart) {
+      setCartList([...localCart]);
+    }
+
+    // Call the fetchData function when the component mounts
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/products');
+      const result = await response.json();
+      setShoes(result);
+    } catch (error) {
+      throw new Error('Network request failed');
+    }
+  };
+
+  const handleAddtoCart = (product) => {
+    const updatedCart = [
+      ...cartList,
+      {
+        ...product,
+        quantity: 1,
+      },
+    ];
+    setCartList([...updatedCart]);
+    setToLocalStorage('cart', updatedCart);
+  };
+
+  const handleRemove = (product) => {
+    const updatedCart = cartList.filter((item) => {
+      return item.id !== product.id;
+    });
+    setCartList([...updatedCart]);
+    setToLocalStorage('cart', updatedCart);
+  };
+
+  const handlePlus = (product) => {
+    const updatedCart = cartList.map((item) => {
+      if (item.id === product.id) {
+        return {
+          ...item,
+          quantity: item.quantity + 1,
+        };
+      }
+      return item;
+    });
+
+    setCartList([...updatedCart]);
+    setToLocalStorage('cart', updatedCart);
+  };
+
+  const handleMinus = (product) => {
+    if (product.quantity === 1) {
+      handleRemove(product);
+    } else {
+      const updatedCart = cartList.map((item) => {
+        if (item.id === product.id) {
+          return {
+            ...item,
+            quantity: item.quantity - 1,
+          };
+        }
+        return item;
+      });
+
+      setCartList([...updatedCart]);
+      setToLocalStorage('cart', updatedCart);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="container">
+      <Card title="Our Products">
+        {shoes.map((shoe) => {
+          if (cartList.length !== 0) {
+            for (let item of cartList) {
+              if (item.id === shoe.id) {
+                return (
+                  <Product
+                    key={shoe.id}
+                    product={shoe}
+                    added={true}
+                    handleAddtoCart={handleAddtoCart}
+                  />
+                );
+              }
+            }
+          }
 
-export default App
+          return (
+            <Product
+              key={shoe.id}
+              product={shoe}
+              handleAddtoCart={handleAddtoCart}
+            />
+          );
+        })}
+      </Card>
+      <Card
+        title="Your cart"
+        totalPrice={
+          cartList.length === 0
+            ? '0'
+            : cartList
+                .reduce((total, item) => {
+                  return total + item.quantity * item.price;
+                }, 0)
+                .toFixed(2)
+        }
+      >
+        {cartList.map((shoe) => {
+          return (
+            <Cart
+              key={shoe.id}
+              product={shoe}
+              handleMinus={handleMinus}
+              handlePlus={handlePlus}
+              handleRemove={handleRemove}
+            />
+          );
+        })}
+      </Card>
+    </div>
+  );
+};
+
+export default App;

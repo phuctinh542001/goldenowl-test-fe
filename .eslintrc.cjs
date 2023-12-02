@@ -17,4 +17,12 @@ module.exports = {
       { allowConstantExport: true },
     ],
   },
-}
+  overrides: [
+    {
+      files: ['**/*.ts?(x)', '**/*.js?(x)'],
+      rules: {
+        'react/prop-types': 'off',
+      },
+    },
+  ],
+};
