@@ -22,7 +22,9 @@ const App = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/products');
+      const response = await fetch(
+        'https://goldenowl-test-be.vercel.app/api/products',
+      );
       const result = await response.json();
       setShoes(result);
     } catch (error) {
@@ -124,17 +126,19 @@ const App = () => {
                 .toFixed(2)
         }
       >
-        {cartList.map((shoe) => {
-          return (
-            <Cart
-              key={shoe.id}
-              product={shoe}
-              handleMinus={handleMinus}
-              handlePlus={handlePlus}
-              handleRemove={handleRemove}
-            />
-          );
-        })}
+        {cartList.length === 0
+          ? 'Your cart is empty'
+          : cartList.map((shoe) => {
+              return (
+                <Cart
+                  key={shoe.id}
+                  product={shoe}
+                  handleMinus={handleMinus}
+                  handlePlus={handlePlus}
+                  handleRemove={handleRemove}
+                />
+              );
+            })}
       </Card>
     </div>
   );

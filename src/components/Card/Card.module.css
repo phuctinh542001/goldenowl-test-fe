@@ -58,3 +58,9 @@
 .body::-webkit-scrollbar {
   display: none;
 }
+
+@media screen and (max-width: 768px) {
+  .container {
+    margin: 20px 0;
+  }
+}
