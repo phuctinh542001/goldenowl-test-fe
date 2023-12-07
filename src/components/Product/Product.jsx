@@ -17,7 +17,7 @@ const Product = ({ product, added = false, handleAddtoCart }) => {
         <p>{product.description}</p>
       </div>
       <div className={styles['bottom']}>
-        <div className={styles['price']}>{product.price}</div>
+        <div className={styles['price']}>${product.price}</div>
         <div className={styles['button']}>
           {!added && (
             <div

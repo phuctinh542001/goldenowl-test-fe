@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
+import { getFromLocalStorage, setToLocalStorage } from './utils/localStorage';
+
 import Card from './components/Card/Card';
 import Product from './components/Product/Product';
 import Cart from './components/Cart/Cart';
-import { getFromLocalStorage, setToLocalStorage } from './utils/localStorage';
+import Loader from './components/Loader/Loader';
 
 import './App.css';
 
 const App = () => {
   const [shoes, setShoes] = useState([]);
   const [cartList, setCartList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const localCart = getFromLocalStorage('cart');
@@ -16,7 +19,6 @@ const App = () => {
       setCartList([...localCart]);
     }
 
-    // Call the fetchData function when the component mounts
     fetchData();
   }, []);
 
@@ -27,6 +29,7 @@ const App = () => {
       );
       const result = await response.json();
       setShoes(result);
+      setLoading(false);
     } catch (error) {
       throw new Error('Network request failed');
     }
@@ -89,30 +92,32 @@ const App = () => {
   return (
     <div className="container">
       <Card title="Our Products">
-        {shoes.map((shoe) => {
-          if (cartList.length !== 0) {
-            for (let item of cartList) {
-              if (item.id === shoe.id) {
-                return (
-                  <Product
-                    key={shoe.id}
-                    product={shoe}
-                    added={true}
-                    handleAddtoCart={handleAddtoCart}
-                  />
-                );
+        {loading && <Loader />}
+        {!loading &&
+          shoes.map((shoe) => {
+            if (cartList.length !== 0) {
+              for (let item of cartList) {
+                if (item.id === shoe.id) {
+                  return (
+                    <Product
+                      key={shoe.id}
+                      product={shoe}
+                      added={true}
+                      handleAddtoCart={handleAddtoCart}
+                    />
+                  );
+                }
               }
             }
-          }
 
-          return (
-            <Product
-              key={shoe.id}
-              product={shoe}
-              handleAddtoCart={handleAddtoCart}
-            />
-          );
-        })}
+            return (
+              <Product
+                key={shoe.id}
+                product={shoe}
+                handleAddtoCart={handleAddtoCart}
+              />
+            );
+          })}
       </Card>
       <Card
         title="Your cart"

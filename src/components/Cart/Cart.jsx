@@ -18,7 +18,7 @@ const Cart = ({ product, handleMinus, handlePlus, handleRemove }) => {
       </div>
       <div className={styles['right']}>
         <div className={styles['name']}>{product.name}</div>
-        <div className={styles['price']}>{product.price}</div>
+        <div className={styles['price']}>${product.price}</div>
         <div className={styles['action']}>
           <div className={styles['count']}>
             <div
